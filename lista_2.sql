@@ -128,3 +128,47 @@ ativo = TRUE GROUP BY id_curso;
 
 -- 15. Selecionar os cursos que têm mais do que dois alunos inscritos
 SELECT * FROM Curso 
+
+-- 16. Selecionar os alunos que estão cursando o TADS e não estão cursando outro curso
+(SELECT  a.nome, a.sobrenome  FROM 
+	(Aluno a JOIN CursoAluno cA
+	ON a.id = cA.id_aluno) WHERE 
+ 	cA.id_curso IN (
+	SELECT id FROM Curso
+	WHERE nome = 'TADS')
+)
+
+EXCEPT 
+
+(SELECT  a.nome, a.sobrenome  FROM 
+	(Aluno a JOIN CursoAluno cA
+	ON a.id = cA.id_aluno) WHERE 
+ 	cA.id_curso NOT IN (
+	SELECT id FROM Curso
+	WHERE nome = 'TADS'))
+	
+-- 17. Selecionar os alunos que estão cursando o TADS e estão cursando Engenharia de
+-- Computação
+
+(SELECT a.nome, a.sobrenome FROM 
+	(Aluno a JOIN CursoAluno cA
+	 ON  cA.id_aluno = a.id)
+	 WHERE cA.id_curso IN (
+	 	SELECT id FROM
+		 Curso WHERE nome = 'Engenharia de Computação'
+	 ))
+INTERSECT 
+(SELECT a.nome,a.sobrenome FROM 
+	(Aluno a JOIN CursoAluno cA
+	 ON  cA.id_aluno = a.id)
+	 WHERE cA.id_curso IN (
+	 	SELECT id FROM
+		 Curso WHERE nome = 'TADS'
+	 ));
+	 
+-- 18. Selecionar os alunos que estão cursando dois ou mais cursos
+SELECT ca.id_aluno,a.nome, a.sobrenome FROM 
+	Aluno a, CursoAluno cA
+	WHERE a.id = cA.id_aluno
+	GROUP BY ca.id_aluno, a.nome, a.sobrenome
+	HAVING COUNT(*) >= 2; 
